@@ -45,7 +45,7 @@ function generateLine() {
 
 function drawTree() {
 	clearCanvas();
-	// drawCharacter();
+	drawCharacter();
 	var a = 0;
 	var b = 0;
 	var c = randomBetween(3, 6);
