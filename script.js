@@ -5,13 +5,15 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight;
 
 var line = [];
+var snow = [];
 var level = 100;
 var flag = false;
 var ang1 = 0; 
 var ang2 = 180;
 
 clearCanvas();
-generateLine(); 
+generateTrunk(); 
+generateSnow(50);
 setInterval(drawTree, 30);
 
 function randomBetween(min, max) {
@@ -38,9 +40,15 @@ function drawCharacter() {
     context.stroke();
 }
 
-function generateLine() {
-	// line.push(new Line(350, canvas.height-100, 85, 95));
+function generateTrunk() {
+	line.push(new Line(350, canvas.height-100, 80, 100));
 	line.push(new Line(canvas.width-400, canvas.height-100, 80, 100));
+}
+
+function generateSnow(count) {
+	for (var i = 0; i < count; i++) {
+		snow.push(new Snow());
+	}
 }
 
 function drawTree() {
@@ -49,7 +57,10 @@ function drawTree() {
 	var a = 0;
 	var b = 0;
 	var c = randomBetween(3, 6);
-	for (var i = 0; i < line.length; i++) {
+	for (var i = 0; i < snow.length && level < 0; i++) {
+		snow[i].update().draw();
+	};
+	for (var i = 0; i < line.length && level >= 0; i++) {
 		line[i].update().draw();
 		if (line[i].grow) {
 			flag = true;
@@ -62,13 +73,18 @@ function drawTree() {
 			c = randomBetween(3, 6);
 		};
 	};
-	if (flag) {
+	if (flag && level >= 0) {
 		flag = false;
-		level -= 18;
+		level -= 19;
 		ang1 -= 15;
 		ang2 += 15;
 	};
-
+	if (level < 0) {
+		level = -1;
+		for (var i = 0; i < line.length; i++) {
+			line[i].draw();
+		}
+	};
 }
 
 function Line(x, y, a1, a2) {
@@ -94,7 +110,6 @@ function Line(x, y, a1, a2) {
     	if (this.life < 0) {
     		this.grow = false;
     	};
-		console.log(this.grow);
 
 		return this;
 	}
@@ -111,3 +126,29 @@ function Line(x, y, a1, a2) {
 	}
 }
 
+function Snow() {
+	this.x = randomBetween(0, canvas.width);
+	this.y = randomBetween(0-canvas.height, 0);
+	this.radius = randomBetween(1,3);
+	this.speed = this.radius;
+
+	this.update = function() {
+		this.y+=this.speed;
+
+		if (this.y == canvas.height) {
+			this.x = randomBetween(0, canvas.width);
+			this.y = 0;
+		};
+
+		return this;
+	}
+
+	this.draw = function() {
+		context.beginPath();
+		context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
+		context.fillStyle = "#ffffff";
+		context.fill();
+
+		return this;
+	}
+}
