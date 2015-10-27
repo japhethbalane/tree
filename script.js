@@ -47,7 +47,8 @@ function Line() {
 	this.update = function() {
 		// var dx = Math.cos(this.angle * Math.PI / 180);
     	// var dy = Math.sin(this.angle * Math.PI / 180);
-    	
+
+		    	
 
 		return this;
 	}
@@ -67,10 +68,12 @@ function Snow() {
 	this.x = randomBetween(0, canvas.width);
 	this.y = randomBetween(0, canvas.height);
 	this.radius = 1;
+	this.windx = randomBetween(-1,2);
+	this.windy = randomBetween(1,3);
 
 	this.update = function() {
-		this.y++;
-		this.x--;
+		this.y+=this.windy;
+		this.x-=this.windx;
 
 		if (this.x < 0) {
 			this.x = canvas.width;
