@@ -8,7 +8,8 @@ var line = [];
 var snow = [];
 
 clearCanvas(); 
-generateSnow(5);
+// generateSnow(5);
+generateLine();
 setInterval(drawTree, 30);
 
 function randomBetween(min, max) {
@@ -28,6 +29,10 @@ function generateSnow(count) {
 	}
 }
 
+function generateLine() {
+	line.push(new Line(canvas.width/2, canvas.height-100, 260, 280, 150));
+}
+
 function drawTree() {
 	clearCanvas();
 	for (var i = 0; i < snow.length; i++) {
@@ -38,17 +43,35 @@ function drawTree() {
 	}
 }
 
-function Line() {
-	this.x1 = canvas.width/2;
-	this.x2 = canvas.height-100;
-	this.y1 = this.x1;
+function Line(x,y,ang1,ang2,life) {
+	this.x1 = x;
+	this.y1 = y;
+	this.x2 = this.x1;
 	this.y2 = this.y1;
+	this.angle = randomBetween(ang1,ang2);
+	this.speed = 5;
+	this.life = life;
+	this.flag = true;
+
+	if (life <= 50) {
+		this.flag = false;
+	};
 
 	this.update = function() {
-		// var dx = Math.cos(this.angle * Math.PI / 180);
-    	// var dy = Math.sin(this.angle * Math.PI / 180);
-
-		    	
+		this.life--;
+    	if (this.life > 50) {
+    		var dx = Math.cos(this.angle * Math.PI / 180);
+    		var dy = Math.sin(this.angle * Math.PI / 180);
+    		this.x2 += dx;
+    		this.y2	+= dy;
+    	};
+    	if (this.life <= 50 && this.flag) {
+    		var rand = randomBetween(1, 10);
+    		for (var i = 0; i <= rand; i++) {
+    			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-15));
+    		};
+    		this.flag = false;
+    	};
 
 		return this;
 	}
