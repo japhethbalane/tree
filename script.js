@@ -11,7 +11,7 @@ var level = 10;
 var flag = true;
 
 clearCanvas(); 
-// generateSnow(5);
+generateSnow(10);
 generateLine();
 setInterval(drawTree, 30);
 
@@ -34,6 +34,7 @@ function generateSnow(count) {
 
 function generateLine() {
 	line.push(new Line(canvas.width/2, canvas.height-100, 260, 280, 150));
+	line.push(new Line(canvas.width/2+300, canvas.height-100, 260, 280, 150));
 }
 
 function drawTree() {
@@ -45,7 +46,6 @@ function drawTree() {
 		line[i].update().draw();
 	}
 	flag = true;
-	// console.log(level);
 }
 
 function Line(x,y,ang1,ang2,life) {
