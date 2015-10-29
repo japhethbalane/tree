@@ -7,6 +7,9 @@ canvas.height = window.innerHeight;
 var line = [];
 var snow = [];
 
+var level = 10;
+var flag = true;
+
 clearCanvas(); 
 // generateSnow(5);
 generateLine();
@@ -41,6 +44,8 @@ function drawTree() {
 	for (var i = 0; i < line.length; i++) {
 		line[i].update().draw();
 	}
+	flag = true;
+	// console.log(level);
 }
 
 function Line(x,y,ang1,ang2,life) {
@@ -65,12 +70,14 @@ function Line(x,y,ang1,ang2,life) {
     		this.x2 += dx;
     		this.y2	+= dy;
     	};
-    	if (this.life <= 50 && this.flag) {
-    		var rand = randomBetween(1, 10);
+    	if (this.life <= 50 && this.flag && flag) {
+    		var rand = randomBetween(1, 1);
     		for (var i = 0; i <= rand; i++) {
     			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-15));
     		};
+    		level--;
     		this.flag = false;
+    		flag = false;
     	};
 
 		return this;
