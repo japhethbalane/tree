@@ -34,7 +34,7 @@ function generateSnow(count) {
 
 function generateLine() {
 	line.push(new Line(canvas.width/2, canvas.height-100, 260, 280, 150));
-	line.push(new Line(canvas.width/2+300, canvas.height-100, 260, 280, 150));
+	// line.push(new Line(canvas.width/2+300, canvas.height-100, 260, 280, 150));
 }
 
 function drawTree() {
@@ -45,7 +45,7 @@ function drawTree() {
 	for (var i = 0; i < line.length; i++) {
 		line[i].update().draw();
 	}
-	flag = true;
+	// flag = true;
 }
 
 function Line(x,y,ang1,ang2,life) {
@@ -70,14 +70,14 @@ function Line(x,y,ang1,ang2,life) {
     		this.x2 += dx;
     		this.y2	+= dy;
     	};
-    	if (this.life <= 50 && this.flag && flag) {
-    		var rand = randomBetween(1, 1);
+    	if (this.life <= 50 && this.flag) {
+    		var rand = randomBetween(1, 10);
     		for (var i = 0; i <= rand; i++) {
     			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-15));
     		};
     		level--;
     		this.flag = false;
-    		flag = false;
+    		// flag = false;
     	};
 
 		return this;
