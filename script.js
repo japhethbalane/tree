@@ -6,6 +6,7 @@ canvas.height = window.innerHeight;
 
 var line = [];
 var snow = [];
+var leaves = [];
 
 var level = 10;
 var flag = true;
@@ -13,6 +14,7 @@ var flag = true;
 clearCanvas(); 
 generateSnow(10);
 generateLine();
+generateLeaf();
 setInterval(drawTree, 30);
 
 function randomBetween(min, max) {
@@ -30,6 +32,10 @@ function generateSnow(count) {
 	for (var i = 0; i < count; i++) {
 		snow.push(new Snow());
 	}
+}
+
+function generateLeaf(x,y) {
+
 }
 
 function generateLine() {
@@ -73,7 +79,7 @@ function Line(x,y,ang1,ang2,life) {
     	if (this.life <= 50 && this.flag) {
     		var rand = randomBetween(1, 10);
     		for (var i = 0; i <= rand; i++) {
-    			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-15));
+    			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-20));
     		};
     		level--;
     		this.flag = false;
