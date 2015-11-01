@@ -8,13 +8,14 @@ var line = [];
 var snow = [];
 var leaves = [];
 
+var ctr = 0;
+
 var level = 10;
 var flag = true;
 
 clearCanvas(); 
-generateSnow(10);
+// generateSnow(10);
 generateLine();
-generateLeaf();
 setInterval(drawTree, 30);
 
 function randomBetween(min, max) {
@@ -35,7 +36,7 @@ function generateSnow(count) {
 }
 
 function generateLeaf(x,y) {
-
+	leaves.push(new Leaf(x,y));
 }
 
 function generateLine() {
@@ -50,6 +51,9 @@ function drawTree() {
 	}
 	for (var i = 0; i < line.length; i++) {
 		line[i].update().draw();
+	}
+	for (var i = 0; i < leaves.length; i++) {
+		leaves[i].update().draw();
 	}
 	// flag = true;
 }
@@ -77,12 +81,17 @@ function Line(x,y,ang1,ang2,life) {
     		this.y2	+= dy;
     	};
     	if (this.life <= 50 && this.flag) {
-    		var rand = randomBetween(1, 10);
-    		for (var i = 0; i <= rand; i++) {
+    		var rand = randomBetween(5, 10);
+    		for (var i = 0; i < rand; i++) {
     			line.push(new Line(this.x2, this.y2, ang1-40, ang2+40, life-20));
+    			if (ctr == 1) {
+    				generateLeaf(this.x2, this.y2);
+    			};
     		};
+    		ctr = 1;
     		level--;
     		this.flag = false;
+    		// console.log(rand);
     		// flag = false;
     	};
 
@@ -130,5 +139,38 @@ function Snow() {
 		context.fill();
 
 		return this;
+	}
+}
+
+function Leaf(x,y) {
+	this.x = x;
+	this.y = y;
+	this.radius = 10;
+	this.r = randomBetween(100,255);
+	this.g = randomBetween(100,255);
+	this.b = randomBetween(0,0);
+	this.fall = false;
+
+	this.update = function() {
+		// if (!this.fall) {
+		// 	var f = randomBetween(1, 5000);
+		// 	if (f == 1) {
+		// 		this.fall = true;
+		// 	};
+		// };
+		// if (this.fall) {
+		// 	if (this.y <= canvas.height-100) {
+		// 		this.y++;
+		// 	};
+		// };
+
+		return this;
+	}
+
+	this.draw = function() {
+		context.beginPath();
+		context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
+		context.fillStyle = "rgba("+this.r+","+this.g+","+this.b+",0.1)";
+		context.fill();
 	}
 }
