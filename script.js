@@ -29,6 +29,14 @@ function clearCanvas() {
 	context.fillRect(0, canvas.height-100, canvas.width, 100);
 }
 
+function trunk() {
+	context.beginPath();
+	context.moveTo(line[0].x1+2, line[0].y1+2);
+	context.lineTo(line[0].x2+2, line[0].y2-2);
+	context.strokeStyle = "#fff";
+	context.stroke();
+}
+
 function generateSnow(count) {
 	for (var i = 0; i < count; i++) {
 		snow.push(new Snow());
@@ -46,6 +54,7 @@ function generateLine() {
 
 function drawTree() {
 	clearCanvas();
+	trunk();
 	for (var i = 0; i < snow.length; i++) {
 		snow[i].update().draw();
 	}
@@ -146,7 +155,7 @@ function Leaf(x,y) {
 	this.x = x;
 	this.y = y;
 	this.radius = 10;
-	this.r = randomBetween(100,255);
+	this.r = randomBetween(0,0);
 	this.g = randomBetween(100,255);
 	this.b = randomBetween(0,0);
 	this.fall = false;
