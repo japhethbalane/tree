@@ -31,8 +31,8 @@ function clearCanvas() {
 
 function trunk() {
 	context.beginPath();
-	context.moveTo(line[0].x1+2, line[0].y1+2);
-	context.lineTo(line[0].x2+2, line[0].y2-2);
+	context.moveTo(line[0].x1+1, line[0].y1+1);
+	context.lineTo(line[0].x2+1, line[0].y2-1);
 	context.strokeStyle = "#fff";
 	context.stroke();
 }
@@ -61,9 +61,10 @@ function drawTree() {
 	for (var i = 0; i < line.length; i++) {
 		line[i].update().draw();
 	}
-	for (var i = 0; i < leaves.length; i++) {
-		leaves[i].update().draw();
-	}
+	// for (var i = 0; i < leaves.length; i++) {
+	// 	leaves[i].update().draw();
+	// }
+	
 	// flag = true;
 }
 
@@ -158,7 +159,7 @@ function Leaf(x,y) {
 	this.r = randomBetween(0,0);
 	this.g = randomBetween(100,255);
 	this.b = randomBetween(0,0);
-	this.fall = false;
+	// this.fall = false;
 
 	this.update = function() {
 		// if (!this.fall) {
