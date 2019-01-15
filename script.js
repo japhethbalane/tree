@@ -3,9 +3,19 @@
 
 const canvas = document.getElementById("tree");
 const context = canvas.getContext("2d");
+const cover = document.getElementById("cover");
 
 canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 0.5;
+
+let coverOpacity = 1;
+let interval = setInterval(function() {
+    if (coverOpacity < 0) {
+        clearInterval(interval);
+    }
+    cover.style.opacity = coverOpacity;
+    coverOpacity -= 0.02;
+}, 100);
 
 let trees = {};
 let people = [];
@@ -30,7 +40,7 @@ function clearCanvas() {
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize trees and image data
 
-for (let i = 100, id = 0; i < canvas.width; i += 100, id++) {
+for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
     let x = i + randomBetween(-40, 40);
     let y = canvas.height * 0.9;
     let length = randomBetween(25, 75);
@@ -102,12 +112,41 @@ let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize people
 
-for (let i = 0; i < 30; i++) {
-    people.push({
-        x: randomBetween(0, canvas.width),
-        speed: randomBetween(0, 5) * 0.2,
-        direction: randomBetween(0, 2)
-    })
+for (let i = 0; i < 15; i++) {
+    people.push(new Person());
+}
+function Person() {
+    this.height = randomBetween(40, 60);
+    this.x = randomBetween(0, canvas.width);
+    this.y = canvas.height * 0.9 - this.height;
+    this.speed = randomBetween(-10, 10) * 0.1;
+    this.update = function() {
+        this.x += this.speed;
+        if (this.x < 0) {
+            this.x = canvas.width;
+        } else if (this.x > canvas.width) {
+            this.x = 0;
+        }
+    };
+    this.draw = function() {
+        context.fillStyle = 'white';
+        context.shadowBlur = 16;
+        context.beginPath();
+        if (this.speed < 0) {
+            context.arc(this.x, this.y, 8, Math.PI * 1.3, Math.PI * 0.6, false);
+        } else {
+            context.arc(this.x, this.y, 8, Math.PI * 2.4, Math.PI * 1.8, false);
+        }
+        context.fill();
+
+        context.beginPath();
+        context.moveTo(this.x, this.y - 2.5);
+        context.lineTo(this.x + 10 - this.speed * 10, this.y + this.height);
+        context.lineTo(this.x - 10 - this.speed * 10, this.y + this.height);
+        context.closePath();
+        context.fill();
+        context.shadowBlur = 0;
+    }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize snow
@@ -144,10 +183,8 @@ setInterval(function() {
     context.putImageData(imageData, 0, 0); // draw trees
 
     for (let person of people) {
-        // context.beginPath();
-        // context.arc(person.x, canvas.height * 0.9 - 10, 10, Math.PI*2, false);
-        // context.fill();
-        // person.x += person.direction == 0 ? person.speed : person.speed * -1;
+        person.update();
+        person.draw();
     }
 
     for (let snow of snows) {
