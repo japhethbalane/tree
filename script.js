@@ -114,9 +114,9 @@ gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
 gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
 gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
 context.fillStyle = gradient;
-for (let i = 0; i < canvas.width; i += 400) { // draw mountains
-    let x = randomBetween(0, canvas.width);
-    let height = randomBetween(250, 350);
+for (let i = 100; i < canvas.width; i += 400) { // draw mountains
+    let x = randomBetween(i - 150, i + 160);
+    let height = randomBetween(200, 350);
     let width = height * 2 + randomBetween(0, 100);
 
     context.beginPath();
