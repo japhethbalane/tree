@@ -41,7 +41,7 @@ function clearCanvas() {
 ////////////////////////////////////////////////////////////////////////////////////// initialize trees and image data
 
 for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
-    let x = i + randomBetween(-40, 40);
+    let x = i + randomBetween(-80, 80);
     let y = canvas.height * 0.9;
     let length = randomBetween(25, 60);
     let angle = -Math.PI / 2;
@@ -50,6 +50,7 @@ for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
     trees[id] = {x_sub: 0, branches: []};
     generateTree(x, y, length, angle, depth, width, id);
 }
+
 function generateTree(startX, startY, length, angle, depth, branchWidth, id) {
     let newLength, newAngle, newDepth, maxBranch = 3,
         endX, endY, maxAngle = 2 * Math.PI / 4, subBranches;
@@ -91,7 +92,7 @@ function drawTrees() {
                 let c = (((Math.random() * 64) + 255) >> 0);
                 context.fillStyle = 'rgba(' + c + ',' + c + ',' + c + ', 0.1)';
                 context.beginPath();
-                context.arc(branch.endX, branch.endY, branch.length / 2, Math.PI * 2, false);
+                context.arc(branch.endX, branch.endY, branch.length * 0.7, Math.PI * 2, false);
                 context.fill();
             } else {
                 context.strokeStyle = 'white';
