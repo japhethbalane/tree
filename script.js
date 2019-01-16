@@ -15,7 +15,7 @@ let interval = setInterval(function() {
     }
     cover.style.opacity = coverOpacity;
     coverOpacity -= 0.02;
-}, 100);
+}, 100); // soft intro
 
 let trees = {};
 let people = [];
@@ -25,7 +25,7 @@ let snows = [];
 
 function randomBetween(min, max) {
     return Math.floor(Math.random() * (max - min)) + min;
-}
+};
 
 function clearCanvas() {
     context.fillStyle = "skyblue";
@@ -33,17 +33,17 @@ function clearCanvas() {
     context.shadowBlur = 16;
     context.shadowColor = 'white';
     context.fillStyle = "white";
-    context.fillRect(0, canvas.height * 0.9, canvas.width, canvas.height * 0.2);
+    context.fillRect(0, canvas.height * 0.9, canvas.width, canvas.height * 0.1);
     context.fillRect(0, 0, canvas.width, canvas.height * 0.1);
     context.shadowBlur = 0;
-}
+};
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize trees and image data
 
 for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
     let x = i + randomBetween(-40, 40);
     let y = canvas.height * 0.9;
-    let length = randomBetween(25, 75);
+    let length = randomBetween(25, 60);
     let angle = -Math.PI / 2;
     let depth = 10;
     let width = length / 5;
@@ -108,11 +108,30 @@ function drawTrees() {
     }
 }
 
-let imageData = context.getImageData(0, 0, canvas.width, canvas.height);
+let gradient = context.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height);
+gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
+gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
+gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+context.fillStyle = gradient;
+for (let i = 0; i < canvas.width; i += 400) { // draw mountains
+    let x = randomBetween(0, canvas.width);
+    let height = randomBetween(250, 350);
+    let width = height * 2 + randomBetween(0, 100);
+
+    context.beginPath();
+    context.moveTo(x, canvas.height * 0.9 - height);
+    context.lineTo(x + width / 2, canvas.height * 0.9);
+    context.lineTo(x - width / 2, canvas.height * 0.9);
+    context.closePath();
+    context.fill();
+}
+
+let backgroundImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize people
 
-for (let i = 0; i < 15; i++) {
+for (let i = 0; i < canvas.width; i += 150) {
     people.push(new Person());
 }
 function Person() {
@@ -120,6 +139,8 @@ function Person() {
     this.x = randomBetween(0, canvas.width);
     this.y = canvas.height * 0.9 - this.height;
     this.speed = randomBetween(-10, 10) * 0.1;
+    this.step = randomBetween(1, 10);
+    this.stepSpeed = -1;
     this.update = function() {
         this.x += this.speed;
         if (this.x < 0) {
@@ -127,31 +148,66 @@ function Person() {
         } else if (this.x > canvas.width) {
             this.x = 0;
         }
+
+        this.step += this.stepSpeed;
+        if (this.step <= 0 || this.step >= 10) {
+            this.stepSpeed *= -1;
+        }
     };
     this.draw = function() {
         context.fillStyle = 'white';
         context.shadowBlur = 16;
-        context.beginPath();
+
+        context.beginPath(); // hoodie
         if (this.speed < 0) {
             context.arc(this.x, this.y, 8, Math.PI * 1.3, Math.PI * 0.6, false);
-        } else {
+        } else if (this.speed > 0) {
             context.arc(this.x, this.y, 8, Math.PI * 2.4, Math.PI * 1.8, false);
+        } else {
+            context.arc(this.x, this.y, 8, Math.PI * 2, false);
         }
         context.fill();
 
-        context.beginPath();
+        context.beginPath(); // hands
+        context.arc(this.x, this.y + this.height * 0.4, 5, Math.PI * 2, false);
+        context.fill();
+
+        context.beginPath(); // body
         context.moveTo(this.x, this.y - 2.5);
         context.lineTo(this.x + 10 - this.speed * 10, this.y + this.height);
         context.lineTo(this.x - 10 - this.speed * 10, this.y + this.height);
         context.closePath();
         context.fill();
+
+        if (this.speed != 0 && this.speed < -0.1 || this.speed > 0.1) {
+            // context.fillStyle = 'red';
+            context.beginPath(); // legs
+            context.moveTo(this.x, this.y + 16);
+            context.lineTo(this.x + this.step, this.y + this.height);
+            context.lineTo(this.x - this.step, this.y + this.height);
+            context.closePath();
+            context.fill();
+
+            // context.fillStyle = 'blue';
+            let test = 20 - this.step + this.height * 0.05;
+            if (this.speed > 0) {
+                test *= -1;
+            }
+            context.beginPath(); // body extension
+            context.moveTo(this.x, this.y + 16);
+            context.lineTo(this.x, this.y + this.height);
+            context.lineTo(this.x + test, this.y + this.height);
+            context.closePath();
+            context.fill();
+        }
+
         context.shadowBlur = 0;
     }
 }
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize snow
 
-for (let i = 0; i < 400; i++) {
+for (let i = 0; i < 1500; i++) {
     snows.push(new Snow());
 }
 function Snow() {
@@ -180,7 +236,7 @@ function Snow() {
 
 setInterval(function() {
     clearCanvas();
-    context.putImageData(imageData, 0, 0); // draw trees
+    context.putImageData(backgroundImageData, 0, 0); // draw trees
 
     for (let person of people) {
         person.update();
