@@ -14,7 +14,7 @@ let interval = setInterval(function() { // soft opacity intro
         clearInterval(interval);
     }
     cover.style.opacity = coverOpacity;
-    coverOpacity -= 0.1;
+    coverOpacity -= 0.01;
 }, 100);
 
 let trees = {};
