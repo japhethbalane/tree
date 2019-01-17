@@ -42,7 +42,8 @@ function clearCanvas() {
 
 clearCanvas(); // clear canvas
 
-let gradient = context.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height); // draw mountains
+// draw mountains
+let gradient = context.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height);
 gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
 gradient.addColorStop(0.3, 'rgba(255, 255, 255, 1)');
 gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0)');
@@ -61,10 +62,11 @@ for (let i = 0; i < canvas.width; i += 60) {
 context.closePath();
 context.fill();
 
-for (let i = 100, id = 0; i < canvas.width; i += 200, id++) { // draw trees
+// draw trees
+for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
     let x = i + randomBetween(-120, 120);
     let y = canvas.height * 0.9;
-    let length = randomBetween(25, 40);
+    let length = randomBetween(10, 50);
     let angle = -Math.PI / 2;
     let depth = 10;
     let width = length / randomBetween(4, 8);
@@ -128,7 +130,102 @@ function drawTrees() {
 drawTrees();
 
 // draw fence
+context.strokeStyle = 'white';
+context.shadowBlur = 10;
+let fences = [];
+for (var i = -50; i < canvas.width + 50; i += 25) {
+    let h = 30;
+    fences.push({
+        height: h,
+        x: i,
+        visible: randomBetween(0, 4) == 0 ? false : true,
+        points: [
+            {x: i, y: h * 0.9},
+            // {x: i, y: h * 0.7},
+            {x: i, y: h * 0.5},
+            // {x: i, y: h * 0.3},
+            {x: i, y: h * 0.1},
+        ]
+    });
+}
+for (let i = 0; i < fences.length - 1; i++) {
+    let fence = fences[i];
+    let nextFence = fences[i + 1];
+    let prevFence = fences[i - 1];
+    if (fence.visible) {
+        context.lineWidth = 0.3;
+        for (let p1 of fence.points) {
+            if (nextFence.visible) {
+                for (let p2 of nextFence.points) {
+                    context.beginPath();
+                    context.moveTo(p1.x, canvas.height * 0.9 - p1.y);
+                    context.lineTo(p2.x, canvas.height * 0.9 - p2.y);
+                    context.stroke();
+                }
+            }
+        }
+        if (prevFence && prevFence.visible || nextFence.visible) {
+            context.lineWidth = 3;
+            context.beginPath();
+            context.moveTo(fence.x, canvas.height * 0.9);
+            context.lineTo(fence.x, canvas.height * 0.9 - (fence.height));
+            context.stroke();
+        }
+    }
+    if (fences[i - 2] && fences[i - 1] && fences[i + 2] && fences[i + 1]
+        && fences[i - 2].visible && fences[i - 1].visible && !fence.visible
+        && fences[i + 2].visible && fences[i + 1].visible) {
+        drawLampPost(fence.x, canvas.height * 0.9 - 100);
+    }
+}
+context.shadowBlur = 0;
+context.lineWidth = 1;
 
+// lamp post
+function drawLampPost(x, y) {
+    // light
+    context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    context.beginPath();
+    context.arc(x, y, 70, Math.PI*2, false);
+    context.fill();
+    context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    context.beginPath();
+    context.arc(x, y, 60, Math.PI*2, false);
+    context.fill();
+    context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    context.beginPath();
+    context.arc(x, y, 50, Math.PI*2, false);
+    context.fill();
+    context.fillStyle = 'rgba(255, 255, 255, 0.1)';
+    context.beginPath();
+    context.arc(x, y, 40, Math.PI*2, false);
+    context.fill();
+
+    context.strokeStyle = 'white';
+    context.fillStyle = 'white';
+    context.lineWidth = 4;
+    context.shadowBlur = 10;
+    context.shadowColor = '#ddd';
+
+    // post
+    context.beginPath();
+    context.moveTo(x, canvas.height * 0.9);
+    context.lineTo(x, y);
+    context.stroke();
+
+    // bulb
+    context.beginPath();
+    context.arc(x, y, 10, Math.PI*0.8, Math.PI*2.2, false);
+    context.fill();
+    context.beginPath();
+    context.arc(x, y + 3, 10, Math.PI*2.2, Math.PI*-1.2, false);
+    context.fill();
+
+    context.lineWidth = 1;
+    context.shadowBlur = 0;
+}
+
+// get image data
 let backgroundImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize people
@@ -161,6 +258,7 @@ function Person() {
     };
     this.draw = function() {
         context.fillStyle = 'white';
+        context.shadowColor = '#eee';
         context.shadowBlur = 16;
 
         context.beginPath(); // hoodie
@@ -223,11 +321,9 @@ function Snow() {
     this.speed = this.radius * 0.1;
     this.draw = function() {
         context.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
-        context.shadowBlur = 16;
         context.beginPath();
         context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
         context.fill();
-        context.shadowBlur = 0;
     };
     this.update = function() {
         this.y += this.speed;
