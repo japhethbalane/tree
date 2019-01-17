@@ -9,13 +9,13 @@ canvas.width = window.innerWidth;
 canvas.height = window.innerHeight * 0.5;
 
 let coverOpacity = 1;
-let interval = setInterval(function() {
+let interval = setInterval(function() { // soft opacity intro
     if (coverOpacity < 0) {
         clearInterval(interval);
     }
     cover.style.opacity = coverOpacity;
-    coverOpacity -= 0.02;
-}, 100); // soft intro
+    coverOpacity -= 0.1;
+}, 100);
 
 let trees = {};
 let people = [];
@@ -38,19 +38,39 @@ function clearCanvas() {
     context.shadowBlur = 0;
 };
 
-////////////////////////////////////////////////////////////////////////////////////// initialize trees and image data
+////////////////////////////////////////////////////////////////////////////////////// initialize image data
 
-for (let i = 100, id = 0; i < canvas.width; i += 200, id++) {
-    let x = i + randomBetween(-80, 80);
+clearCanvas(); // clear canvas
+
+let gradient = context.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height); // draw mountains
+gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
+gradient.addColorStop(0.3, 'rgba(255, 255, 255, 1)');
+gradient.addColorStop(0.8, 'rgba(255, 255, 255, 0)');
+gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
+context.fillStyle = gradient;
+context.beginPath();
+for (let i = 0; i < canvas.width; i += 60) {
+    let x = randomBetween(i - 150, i + 160);
+    let height = randomBetween(30, 200);
+    let width = height * 2 + randomBetween(0, 100);
+
+    context.moveTo(x, canvas.height * 0.9 - height);
+    context.lineTo(x + width / 2, canvas.height * 0.9);
+    context.lineTo(x - width / 2, canvas.height * 0.9);
+}
+context.closePath();
+context.fill();
+
+for (let i = 100, id = 0; i < canvas.width; i += 200, id++) { // draw trees
+    let x = i + randomBetween(-120, 120);
     let y = canvas.height * 0.9;
-    let length = randomBetween(25, 60);
+    let length = randomBetween(25, 40);
     let angle = -Math.PI / 2;
     let depth = 10;
-    let width = length / 5;
+    let width = length / randomBetween(4, 8);
     trees[id] = {x_sub: 0, branches: []};
     generateTree(x, y, length, angle, depth, width, id);
 }
-
 function generateTree(startX, startY, length, angle, depth, branchWidth, id) {
     let newLength, newAngle, newDepth, maxBranch = 3,
         endX, endY, maxAngle = 2 * Math.PI / 4, subBranches;
@@ -79,10 +99,7 @@ function generateTree(startX, startY, length, angle, depth, branchWidth, id) {
         generateTree(endX, endY, newLength, newAngle, newDepth, branchWidth, id);
     }
 }
-
-drawTrees();
 function drawTrees() {
-    clearCanvas();
     for (let id in trees) {
         let tree = trees[id];
         context.lineCap = 'round';
@@ -108,25 +125,9 @@ function drawTrees() {
 
     }
 }
+drawTrees();
 
-let gradient = context.createLinearGradient(canvas.width/2, 0, canvas.width/2, canvas.height);
-gradient.addColorStop(0, 'rgba(255, 255, 255, 1)');
-gradient.addColorStop(0.25, 'rgba(255, 255, 255, 1)');
-gradient.addColorStop(0.5, 'rgba(255, 255, 255, 0.2)');
-gradient.addColorStop(1, 'rgba(255, 255, 255, 0)');
-context.fillStyle = gradient;
-for (let i = 100; i < canvas.width; i += 400) { // draw mountains
-    let x = randomBetween(i - 150, i + 160);
-    let height = randomBetween(200, 350);
-    let width = height * 2 + randomBetween(0, 100);
-
-    context.beginPath();
-    context.moveTo(x, canvas.height * 0.9 - height);
-    context.lineTo(x + width / 2, canvas.height * 0.9);
-    context.lineTo(x - width / 2, canvas.height * 0.9);
-    context.closePath();
-    context.fill();
-}
+// draw fence
 
 let backgroundImageData = context.getImageData(0, 0, canvas.width, canvas.height);
 
@@ -141,13 +142,16 @@ function Person() {
     this.y = canvas.height * 0.9 - this.height;
     this.speed = randomBetween(-10, 10) * 0.1;
     this.step = randomBetween(1, 10);
-    this.stepSpeed = -1;
+    this.stepSpeed = this.speed;
+    if (this.speed >= -0.1 && this.speed <= 0.1) {
+        this.speed *= 0.01;
+    }
     this.update = function() {
         this.x += this.speed;
-        if (this.x < 0) {
-            this.x = canvas.width;
-        } else if (this.x > canvas.width) {
-            this.x = 0;
+        if (this.x < -50) {
+            this.x = canvas.width + 50;
+        } else if (this.x > canvas.width + 50) {
+            this.x = -50;
         }
 
         this.step += this.stepSpeed;
@@ -190,11 +194,11 @@ function Person() {
             context.fill();
 
             // context.fillStyle = 'blue';
-            let test = 20 - this.step + this.height * 0.05;
+            let test = 20 - this.step;
             if (this.speed > 0) {
                 test *= -1;
             }
-            context.beginPath(); // body extension
+            context.beginPath(); // cape
             context.moveTo(this.x, this.y + 16);
             context.lineTo(this.x, this.y + this.height);
             context.lineTo(this.x + test, this.y + this.height);
@@ -214,9 +218,9 @@ for (let i = 0; i < 1500; i++) {
 function Snow() {
     this.x = randomBetween(0, canvas.width);
     this.y = randomBetween(0, canvas.height);
-    this.radius = randomBetween(1, 4);
+    this.radius = randomBetween(1, 3);
     this.opacity = randomBetween(20, 40) * 0.01;
-    this.speed = this.radius * 0.2;
+    this.speed = this.radius * 0.1;
     this.draw = function() {
         context.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
         context.shadowBlur = 16;
@@ -236,8 +240,7 @@ function Snow() {
 ////////////////////////////////////////////////////////////////////////////////////// main loop
 
 setInterval(function() {
-    clearCanvas();
-    context.putImageData(backgroundImageData, 0, 0); // draw trees
+    context.putImageData(backgroundImageData, 0, 0); // draw image data
 
     for (let person of people) {
         person.update();
