@@ -14,7 +14,7 @@ let interval = setInterval(function() { // soft opacity intro
         clearInterval(interval);
     }
     cover.style.opacity = coverOpacity;
-    coverOpacity -= 0.01;
+    coverOpacity -= 0.1;
 }, 100);
 
 let trees = {};
@@ -109,9 +109,12 @@ function drawTrees() {
         for (let branch of tree.branches) {
             if (branch.depth <= 3) {
                 let c = (((Math.random() * 64) + 255) >> 0);
-                context.fillStyle = 'rgba(' + c + ',' + c + ',' + c + ', 0.1)';
+                context.fillStyle = 'rgba(' + c + ',' + c + ',' + c + ', 0.2)';
+                let ang = randomBetween(0, 200);
+                let ang1 = Math.PI * ang * 0.01;
+                let ang2 = Math.PI * randomBetween(ang, 200) * 0.01;
                 context.beginPath();
-                context.arc(branch.endX, branch.endY, branch.length * 0.7, Math.PI * 2, false);
+                context.arc(branch.endX, branch.endY, branch.length * 0.7, ang1, ang2, false);
                 context.fill();
             } else {
                 context.strokeStyle = 'white';
@@ -122,6 +125,13 @@ function drawTrees() {
                 context.lineTo(branch.endX, branch.endY);
                 context.stroke();
                 context.shadowBlur = 0;
+
+                if (branch.depth == 4) {
+                    context.fillStyle = 'rgba(255,255,255,0.5)';
+                    context.beginPath();
+                    context.arc(branch.endX, branch.endY, branch.length * 0.3, Math.PI * 2, false);
+                    context.fill();
+                }
             }
         }
 
@@ -310,15 +320,17 @@ function Person() {
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize snow
 
-for (let i = 0; i < 1500; i++) {
+for (let i = 0; i < 500; i++) {
     snows.push(new Snow());
 }
 function Snow() {
     this.x = randomBetween(0, canvas.width);
     this.y = randomBetween(0, canvas.height);
-    this.radius = randomBetween(1, 3);
-    this.opacity = randomBetween(20, 40) * 0.01;
-    this.speed = this.radius * 0.1;
+    this.radius = randomBetween(1, 4);
+    this.opacity = randomBetween(20, 30) * (this.radius / 2 * 0.01);
+    this.speedX = 0;
+    this.speedY = this.radius * 0.1;
+
     this.draw = function() {
         context.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
         context.beginPath();
@@ -326,12 +338,30 @@ function Snow() {
         context.fill();
     };
     this.update = function() {
-        this.y += this.speed;
-        if (this.y > canvas.height) {
+        this.x += this.speedX;
+        this.y += this.speedY;
+
+        if (this.y > canvas.height) { // check y
             this.y = 0;
+        }
+
+        if (this.x < 0) { // check x
+            this.x = canvas.width;
+        } else if (this.x > canvas.width) {
+            this.x = 0;
         }
     };
 }
+
+////////////////////////////////////////////////////////////////////////////////////// initialize wind
+
+window.addEventListener('mousemove', function(e) {
+    let windSpeed = (e.pageX - canvas.width / 2) * 0.003;
+    // for (let snow of snows) {
+    //     snow.speedX = windSpeed;
+    //     snow.speedY = Math.abs(snow.radius * 0.01 + windSpeed);
+    // }
+});
 
 ////////////////////////////////////////////////////////////////////////////////////// main loop
 
