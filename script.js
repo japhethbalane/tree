@@ -6,7 +6,7 @@ const context = canvas.getContext("2d");
 const cover = document.getElementById("cover");
 
 canvas.width = window.innerWidth;
-canvas.height = window.innerHeight * 0.5;
+canvas.height = window.innerHeight * 0.6;
 
 let coverOpacity = 1;
 let interval = setInterval(function() { // soft opacity intro
@@ -28,7 +28,16 @@ function randomBetween(min, max) {
 };
 
 function clearCanvas() {
-    context.fillStyle = "skyblue";
+    let gradient = context.createRadialGradient(
+        canvas.width / 2, canvas.height * 2, canvas.height * 1,
+        canvas.width / 2, canvas.height * 2, canvas.height * 2);
+    gradient.addColorStop(0, '#016d9c');
+    gradient.addColorStop(0.2, '#016d9c');
+    gradient.addColorStop(0.4, '#004972');
+    gradient.addColorStop(0.5, '#004972');
+    gradient.addColorStop(1, '#002b44');
+
+    context.fillStyle = gradient;
     context.fillRect(0, 0, canvas.width, canvas.height);
     context.shadowBlur = 16;
     context.shadowColor = 'white';
@@ -320,48 +329,56 @@ function Person() {
 
 ////////////////////////////////////////////////////////////////////////////////////// initialize snow
 
-for (let i = 0; i < 500; i++) {
+for (let i = 0; i < canvas.width; i += 4) {
     snows.push(new Snow());
 }
 function Snow() {
     this.x = randomBetween(0, canvas.width);
     this.y = randomBetween(0, canvas.height);
-    this.radius = randomBetween(1, 4);
-    this.opacity = randomBetween(20, 30) * (this.radius / 2 * 0.01);
-    this.speedX = 0;
-    this.speedY = this.radius * 0.1;
+    this.radius = randomBetween(10, 25) * 0.1;
+    this.opacity = randomBetween(0, 100) * 0.01;
+    this.speed = randomBetween(1, 10) * 0.1;
 
-    this.draw = function() {
-        context.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
-        context.beginPath();
-        context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
-        context.fill();
-    };
+    this.isRightSwing = true;
+    if (randomBetween(0, 2) == 0) { this.isRightSwing = false }
+    this.minangle = 90 - randomBetween(20, 90);
+    this.maxangle = 90 + randomBetween(20, 90);
+    this.angle = randomBetween(this.minangle, this.maxangle);
+
     this.update = function() {
-        this.x += this.speedX;
-        this.y += this.speedY;
+        if (this.y-this.radius > canvas.height) {this.y = 0-this.radius;}
+        else if (this.y+this.radius < 0) {this.y = canvas.height+this.radius;}
+        if (this.x-this.radius > canvas.width) {this.x = 0-this.radius;}
+        else if (this.x+this.radius < 0) {this.x = canvas.width+this.radius;}
+
+        if (this.isRightSwing) {
+            this.angle--;
+            if (this.angle <= this.minangle) {this.isRightSwing = false;}
+        }
+        else if (!this.isRightSwing) {
+            this.angle++;
+            if (this.angle >= this.maxangle) {this.isRightSwing = true;}
+        }
+
+        this.x += Math.cos(this.angle * (Math.PI / 180)) * this.speed;
+        this.y += Math.sin(this.angle * (Math.PI / 180)) * this.speed;
 
         if (this.y > canvas.height) { // check y
             this.y = 0;
         }
-
         if (this.x < 0) { // check x
             this.x = canvas.width;
         } else if (this.x > canvas.width) {
             this.x = 0;
         }
     };
+    this.draw = function() {
+        context.fillStyle = 'rgba(255, 255, 255, ' + this.opacity + ')';
+        context.beginPath();
+        context.arc(this.x, this.y, this.radius, Math.PI * 2, false);
+        context.fill();
+    };
 }
-
-////////////////////////////////////////////////////////////////////////////////////// initialize wind
-
-window.addEventListener('mousemove', function(e) {
-    let windSpeed = (e.pageX - canvas.width / 2) * 0.003;
-    // for (let snow of snows) {
-    //     snow.speedX = windSpeed;
-    //     snow.speedY = Math.abs(snow.radius * 0.01 + windSpeed);
-    // }
-});
 
 ////////////////////////////////////////////////////////////////////////////////////// main loop
 
